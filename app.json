@@ -8,6 +8,8 @@
     "userInterfaceStyle": "light",
     "scheme": "tur",
     "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
       "backgroundColor": "#F5F7FA"
     },
     "ios": {
