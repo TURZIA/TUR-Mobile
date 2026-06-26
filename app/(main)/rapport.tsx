@@ -11,7 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import Toast from 'react-native-toast-message';
 import * as Haptics from 'expo-haptics';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import { COLORS, RADIUS, SHADOWS } from '@/constants/theme';
 import { Button } from '@/components/UI/Button';
