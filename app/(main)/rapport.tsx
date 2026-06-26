@@ -11,6 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import Toast from 'react-native-toast-message';
 import * as Haptics from 'expo-haptics';
+import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { COLORS, RADIUS, SHADOWS } from '@/constants/theme';
 import { Button } from '@/components/UI/Button';
@@ -200,10 +201,9 @@ export default function RapportScreen() {
         csv += `${i + 1},${entry.name},${entry.checkpoints}/${totalCheckpoints},${entry.total}s\n`;
       });
 
-      const { Paths, File } = await import('expo-file-system');
-      const file = new File(Paths.cache, 'tur-rapport.csv');
-      await file.write(csv);
-      await Sharing.shareAsync(file.uri);
+      const fileUri = FileSystem.documentDirectory + 'tur-rapport.csv';
+      await FileSystem.writeAsStringAsync(fileUri, csv);
+      await Sharing.shareAsync(fileUri);
     } catch {
       Toast.show({ type: 'error', text1: 'Kunne ikke eksportere rapport' });
     }
