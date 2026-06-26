@@ -1,0 +1,60 @@
+{
+  "expo": {
+    "name": "TUR",
+    "slug": "tur-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "scheme": "tur",
+    "splash": {
+      "backgroundColor": "#F5F7FA"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.tur.mobile",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "TUR trenger tilgang til posisjonen din for å registrere besøk ved tursteder.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "TUR trenger tilgang til posisjonen din for å registrere besøk ved tursteder.",
+        "NSLocationAlwaysUsageDescription": "TUR trenger tilgang til posisjonen din for navigering til tursteder."
+      },
+      "config": {
+        "googleMapsApiKey": ""
+      }
+    },
+    "android": {
+      "package": "com.tur.mobile",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0EA371"
+      },
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "VIBRATE",
+        "ACCESS_BACKGROUND_LOCATION"
+      ],
+      "config": {
+        "googleMaps": {
+          "apiKey": ""
+        }
+      }
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "TUR trenger tilgang til posisjonen din for å registrere besøk ved tursteder.",
+          "locationAlwaysPermission": "TUR trenger tilgang til posisjonen din for navigering til tursteder.",
+          "locationWhenInUsePermission": "TUR trenger tilgang til posisjonen din for å registrere besøk ved tursteder."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
