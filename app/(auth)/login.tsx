@@ -151,12 +151,13 @@ export default function LoginScreen() {
         style={StyleSheet.absoluteFill}
       />
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.flex}
       >
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="none"
         >
           <Text style={styles.logo}>TUR</Text>
 
@@ -277,9 +278,12 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   flex: { flex: 1 },
   scrollContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
+    // Fixed top spacing instead of vertical centering: centered content
+    // re-layouts on every keyboard show/hide, which makes the whole
+    // screen jump while typing.
     padding: 24,
+    paddingTop: 90,
+    paddingBottom: 40,
   },
   logo: {
     fontSize: 48,
