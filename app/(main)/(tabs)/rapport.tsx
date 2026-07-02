@@ -5,7 +5,10 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Platform,
 } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { Ionicons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
 import * as Haptics from 'expo-haptics';
 import * as FileSystem from 'expo-file-system/legacy';
@@ -51,6 +54,7 @@ export default function RapportScreen() {
   const [winner, setWinner] = useState<Winner | null>(null);
   const [drawingWinner, setDrawingWinner] = useState(false);
   const [totalCheckpoints, setTotalCheckpoints] = useState(0);
+  const [datePicker, setDatePicker] = useState<'from' | 'to' | null>(null);
 
   useEffect(() => {
     const { from, to } = getMonthRange();
@@ -67,10 +71,20 @@ export default function RapportScreen() {
 
   useEffect(() => {
     if (selectedAdmin) {
+      setSelectedRace('');
       loadRaces(selectedAdmin);
       generateReport();
     }
   }, [selectedAdmin]);
+
+  const handleDateChange = (event: any, date?: Date) => {
+    const which = datePicker;
+    if (Platform.OS === 'android') setDatePicker(null);
+    if (!date || !which) return;
+    const iso = date.toISOString().split('T')[0];
+    if (which === 'from') setDateFrom(iso);
+    else setDateTo(iso);
+  };
 
   const loadAdmins = async () => {
     const { data } = await getAllAdmins();
@@ -231,6 +245,73 @@ export default function RapportScreen() {
           </View>
         )}
 
+        {/* Race filter */}
+        {races.length > 0 && (
+          <View style={styles.selectorRow}>
+            <Text style={styles.label}>Tur:</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <TouchableOpacity
+                style={[styles.chip, selectedRace === '' && styles.chipActive]}
+                onPress={() => setSelectedRace('')}
+              >
+                <Text style={[styles.chipText, selectedRace === '' && styles.chipTextActive]}>
+                  Alle turer
+                </Text>
+              </TouchableOpacity>
+              {races.map((r) => (
+                <TouchableOpacity
+                  key={r.race_id}
+                  style={[styles.chip, selectedRace === r.race_id && styles.chipActive]}
+                  onPress={() => setSelectedRace(r.race_id)}
+                >
+                  <Text
+                    style={[styles.chipText, selectedRace === r.race_id && styles.chipTextActive]}
+                  >
+                    {r.name}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        )}
+
+        {/* Date range */}
+        <View style={styles.selectorRow}>
+          <Text style={styles.label}>Periode:</Text>
+          <View style={styles.dateRow}>
+            <TouchableOpacity style={styles.dateBtn} onPress={() => setDatePicker('from')}>
+              <Ionicons name="calendar-outline" size={16} color={COLORS.green} />
+              <Text style={styles.dateText}>{dateFrom ? formatDate(dateFrom) : 'Fra dato'}</Text>
+            </TouchableOpacity>
+            <Text style={styles.dateSep}>–</Text>
+            <TouchableOpacity style={styles.dateBtn} onPress={() => setDatePicker('to')}>
+              <Ionicons name="calendar-outline" size={16} color={COLORS.green} />
+              <Text style={styles.dateText}>{dateTo ? formatDate(dateTo) : 'Til dato'}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {datePicker && (
+          <View style={styles.pickerWrap}>
+            <DateTimePicker
+              value={new Date((datePicker === 'from' ? dateFrom : dateTo) || Date.now())}
+              mode="date"
+              display={Platform.OS === 'ios' ? 'inline' : 'default'}
+              onChange={handleDateChange}
+              themeVariant="light"
+              accentColor={COLORS.green}
+            />
+            {Platform.OS === 'ios' && (
+              <Button
+                title="Ferdig"
+                variant="outline"
+                onPress={() => setDatePicker(null)}
+                style={{ marginTop: 4, minHeight: 40 }}
+              />
+            )}
+          </View>
+        )}
+
         <Button
           title="Generer rapport"
           onPress={generateReport}
@@ -312,6 +393,28 @@ const styles = StyleSheet.create({
   chipActive: { backgroundColor: COLORS.green },
   chipText: { fontSize: 13, fontWeight: '600', color: COLORS.text2 },
   chipTextActive: { color: COLORS.white },
+  dateRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  dateBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: RADIUS.sm,
+    paddingVertical: 10,
+  },
+  dateText: { fontSize: 14, fontWeight: '600', color: COLORS.text },
+  dateSep: { color: COLORS.muted, fontSize: 16 },
+  pickerWrap: {
+    backgroundColor: COLORS.surface,
+    borderRadius: RADIUS.md,
+    padding: 8,
+    marginBottom: 16,
+    ...SHADOWS.sm,
+  },
   table: {
     backgroundColor: COLORS.surface,
     borderRadius: RADIUS.md,
