@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import Toast from 'react-native-toast-message';
 import { COLORS, RADIUS, SHADOWS } from '@/constants/theme';
 import { Button } from '@/components/UI/Button';
@@ -17,18 +17,30 @@ import { useMapStore } from '@/stores/mapStore';
 import { createRace, createCheckpoint } from '@/services/supabase';
 import { CONFIG } from '@/constants/config';
 import { genAdminCode } from '@/utils/formatters';
+import { consumePickedLocation } from '@/utils/pickerResult';
 
 export default function NewRaceScreen() {
   const user = useAuthStore((s) => s.user);
-  const params = useLocalSearchParams<{ lat?: string; lng?: string; placeName?: string }>();
   const isSuperAdmin = user?.role === 'superadmin';
 
   const [raceName, setRaceName] = useState('');
   const [adminCodeInput, setAdminCodeInput] = useState(user?.adminCode || '');
-  const [selectedLat, setSelectedLat] = useState(params.lat ? parseFloat(params.lat) : 0);
-  const [selectedLng, setSelectedLng] = useState(params.lng ? parseFloat(params.lng) : 0);
-  const [placeName, setPlaceName] = useState(params.placeName || '');
+  const [selectedLat, setSelectedLat] = useState(0);
+  const [selectedLng, setSelectedLng] = useState(0);
+  const [placeName, setPlaceName] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Pick up the location chosen in map-picker when this screen regains focus
+  useFocusEffect(
+    useCallback(() => {
+      const picked = consumePickedLocation();
+      if (picked) {
+        setSelectedLat(picked.lat);
+        setSelectedLng(picked.lng);
+        if (picked.placeName) setPlaceName(picked.placeName);
+      }
+    }, [])
+  );
 
   const hasLocation = selectedLat !== 0 && selectedLng !== 0;
 
@@ -75,15 +87,6 @@ export default function NewRaceScreen() {
   const openMapPicker = () => {
     router.push('/(main)/map-picker');
   };
-
-  // Update selected location when returning from map picker
-  React.useEffect(() => {
-    if (params.lat && params.lng) {
-      setSelectedLat(parseFloat(params.lat));
-      setSelectedLng(parseFloat(params.lng));
-      if (params.placeName) setPlaceName(params.placeName);
-    }
-  }, [params.lat, params.lng, params.placeName]);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>

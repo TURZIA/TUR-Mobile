@@ -5,6 +5,7 @@ import RNMapView, { Marker, MapPressEvent } from 'react-native-maps';
 import { router } from 'expo-router';
 import { COLORS, RADIUS, SHADOWS } from '@/constants/theme';
 import { searchPlaces, type SearchResult } from '@/services/search';
+import { setPickedLocation } from '@/utils/pickerResult';
 
 export default function MapPickerScreen() {
   const mapRef = useRef<RNMapView>(null);
@@ -47,14 +48,8 @@ export default function MapPickerScreen() {
 
   const handleConfirm = () => {
     if (!marker) return;
-    router.navigate({
-      pathname: '/(main)/new-race',
-      params: {
-        lat: marker.lat.toString(),
-        lng: marker.lng.toString(),
-        placeName: placeName || '',
-      },
-    });
+    setPickedLocation({ lat: marker.lat, lng: marker.lng, placeName: placeName || '' });
+    router.back();
   };
 
   return (

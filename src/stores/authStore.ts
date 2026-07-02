@@ -1,14 +1,41 @@
 import { create } from 'zustand';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CONFIG } from '../constants/config';
 import {
   supabase,
   getRunner,
   getAdminByEmail,
+  getAdminByCode,
   upsertRunner,
   updateRunnerAdmin,
   type Runner,
   type Admin,
 } from '../services/supabase';
+
+const PENDING_SIGNUP_KEY = 'tur_pending_signup';
+
+export async function savePendingSignup(name: string, adminCode: string | null) {
+  try {
+    await AsyncStorage.setItem(PENDING_SIGNUP_KEY, JSON.stringify({ name, adminCode }));
+  } catch {}
+}
+
+export async function clearPendingSignup() {
+  try {
+    await AsyncStorage.removeItem(PENDING_SIGNUP_KEY);
+  } catch {}
+}
+
+async function consumePendingSignup(): Promise<{ name: string; adminCode: string | null } | null> {
+  try {
+    const raw = await AsyncStorage.getItem(PENDING_SIGNUP_KEY);
+    if (!raw) return null;
+    await AsyncStorage.removeItem(PENDING_SIGNUP_KEY);
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
 
 export type UserRole = 'superadmin' | 'admin' | 'runner' | null;
 
@@ -116,7 +143,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
       // Check if previous admin was reactivated
       if (!runner.race_id && runner.prev_race_id) {
-        const { data: prevAdmin } = await getAdminByEmail(runner.prev_race_id);
+        const { data: prevAdmin } = await getAdminByCode(runner.prev_race_id);
         if (prevAdmin) {
           await updateRunnerAdmin(authId, runner.prev_race_id);
           runner.race_id = runner.prev_race_id;
@@ -134,16 +161,25 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         },
       });
     } else {
-      // New runner
-      await upsertRunner({ id: authId, name, email, race_id: null });
+      // New runner — apply pending signup data (deltakerkode entered before
+      // e-mail confirmation) if present and still valid
+      const pending = await consumePendingSignup();
+      let raceId: string | null = null;
+      if (pending?.adminCode) {
+        const { data: admin } = await getAdminByCode(pending.adminCode);
+        if (admin) raceId = pending.adminCode;
+      }
+      const runnerName = pending?.name || name;
+
+      await upsertRunner({ id: authId, name: runnerName, email, race_id: raceId });
       set({
         user: {
           id: authId,
-          name,
+          name: runnerName,
           email,
           role: 'runner',
           adminCode: null,
-          raceId: null,
+          raceId,
         },
       });
     }

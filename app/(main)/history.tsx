@@ -24,9 +24,13 @@ import { formatDate, formatTime } from '@/utils/formatters';
 
 export default function HistoryScreen() {
   const user = useAuthStore((s) => s.user);
+  const races = useMapStore((s) => s.races);
   const [checkIns, setCheckIns] = useState<CheckIn[]>([]);
   const [winners, setWinners] = useState<Winner[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const raceName = (raceId: string) =>
+    races.find((r) => r.race_id === raceId)?.name || raceId;
 
   useEffect(() => {
     if (!user) return;
@@ -108,7 +112,9 @@ export default function HistoryScreen() {
           ) : (
             Object.entries(grouped).map(([raceId, entries]) => (
               <View key={raceId} style={styles.group}>
-                <Text style={styles.groupTitle}>{entries[0]?.race_id || 'Ukjent tur'}</Text>
+                <Text style={styles.groupTitle}>
+                  {raceId !== 'unknown' ? raceName(raceId) : 'Ukjent tur'}
+                </Text>
                 {entries.map((ci, idx) => {
                   const isWinner = winnerRaceIds.has(ci.race_id);
                   return (

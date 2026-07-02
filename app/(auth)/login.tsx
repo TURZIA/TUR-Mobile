@@ -15,7 +15,7 @@ import { COLORS, RADIUS, SHADOWS, SPACING } from '@/constants/theme';
 import { Button } from '@/components/UI/Button';
 import { Input } from '@/components/UI/Input';
 import { signIn, signUp, resetPassword, getAdminByEmail, getAdminByCode, upsertRunner } from '@/services/supabase';
-import { useAuthStore } from '@/stores/authStore';
+import { useAuthStore, savePendingSignup, clearPendingSignup } from '@/stores/authStore';
 
 type FormMode = 'login' | 'signup' | 'reset';
 
@@ -81,6 +81,9 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
+      const pendingCode = showAdminCode && adminCode.trim() ? adminCode.trim().toUpperCase() : null;
+      await savePendingSignup(name.trim(), pendingCode);
+
       const { data, error } = await signUp(email.trim(), password, name.trim());
       if (error) {
         Toast.show({ type: 'error', text1: 'Registrering feilet', text2: error.message });
@@ -94,12 +97,12 @@ export default function LoginScreen() {
       }
 
       if (data.user && data.session) {
-        const raceId = showAdminCode && adminCode.trim() ? adminCode.trim().toUpperCase() : null;
+        await clearPendingSignup();
         await upsertRunner({
           id: data.user.id,
           name: name.trim(),
           email: email.trim(),
-          race_id: raceId,
+          race_id: pendingCode,
         });
         await resolveUser(data.user.id, email.trim(), name.trim());
         router.replace('/(main)/map');

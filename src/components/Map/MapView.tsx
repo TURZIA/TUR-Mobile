@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useCallback } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
-import RNMapView, { Marker, Circle, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
+import RNMapView, { Marker, Circle, Polyline } from 'react-native-maps';
 import { COLORS } from '../../constants/theme';
 import { useMapStore, type MapCheckpoint } from '../../stores/mapStore';
 import { useAuthStore } from '../../stores/authStore';
