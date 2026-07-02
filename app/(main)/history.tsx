@@ -6,7 +6,9 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { COLORS, RADIUS, SHADOWS, SPACING } from '@/constants/theme';
@@ -17,6 +19,7 @@ import {
   getCheckInsByRunner,
   getWinnersByRunner,
   updateRunnerAdmin,
+  deleteAccount,
   type CheckIn,
   type Winner,
 } from '@/services/supabase';
@@ -58,6 +61,29 @@ export default function HistoryScreen() {
     await updateRunnerAdmin(user.id, null, prevCode ?? undefined);
     useAuthStore.getState().setUser({ ...user, raceId: null });
     router.back();
+  };
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      'Slett konto',
+      'Er du sikker? Kontoen din og alle registreringer slettes permanent. Dette kan ikke angres.',
+      [
+        { text: 'Avbryt', style: 'cancel' },
+        {
+          text: 'Slett konto',
+          style: 'destructive',
+          onPress: async () => {
+            const { error } = await deleteAccount();
+            if (error) {
+              Toast.show({ type: 'error', text1: 'Kunne ikke slette konto', text2: 'Prøv igjen senere' });
+              return;
+            }
+            useAuthStore.getState().setUser(null);
+            router.replace('/(auth)/login');
+          },
+        },
+      ]
+    );
   };
 
   const winnerRaceIds = new Set(winners.flatMap((w) => w.race_ids || []));
@@ -142,6 +168,11 @@ export default function HistoryScreen() {
               </View>
             ))
           )}
+
+          {/* Account deletion — required by App Store / Google Play */}
+          <TouchableOpacity style={styles.deleteAccount} onPress={handleDeleteAccount}>
+            <Text style={styles.deleteAccountText}>Slett konto</Text>
+          </TouchableOpacity>
         </ScrollView>
       )}
     </SafeAreaView>
@@ -204,4 +235,11 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
   },
   winnerText: { color: COLORS.white, fontSize: 11, fontWeight: '700' },
+  deleteAccount: {
+    marginTop: 32,
+    marginBottom: 16,
+    alignItems: 'center',
+    paddingVertical: 12,
+  },
+  deleteAccountText: { color: COLORS.red, fontSize: 14, fontWeight: '600' },
 });

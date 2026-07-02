@@ -222,6 +222,17 @@ export async function saveWinner(winner: Omit<Winner, 'id'>) {
   return supabase.from('winners').insert(winner);
 }
 
+// ─── Account deletion (App Store 5.1.1(v) / Play data-deletion requirement) ───
+// Calls the `delete_account` RPC (security definer) which removes the auth user
+// and all their data. See supabase/delete_account.sql for the function.
+export async function deleteAccount() {
+  const { error } = await supabase.rpc('delete_account');
+  if (!error) {
+    await supabase.auth.signOut();
+  }
+  return { error };
+}
+
 // ─── Counts (for status dashboard) ───
 export async function getSystemCounts() {
   const [checkpoints, admins, runners, races] = await Promise.all([

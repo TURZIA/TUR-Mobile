@@ -17,43 +17,38 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.tur.mobile",
+      "buildNumber": "1",
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "TUR trenger tilgang til posisjonen din for å registrere besøk ved tursteder.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "TUR trenger tilgang til posisjonen din for å registrere besøk ved tursteder.",
-        "NSLocationAlwaysUsageDescription": "TUR trenger tilgang til posisjonen din for navigering til tursteder."
-      },
-      "config": {
-        "googleMapsApiKey": ""
+        "NSLocationWhenInUseUsageDescription": "TUR trenger tilgang til posisjonen din for å registrere besøk ved tursteder og vise avstand til neste sted.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
       "package": "com.tur.mobile",
+      "versionCode": 1,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png",
         "backgroundColor": "#0EA371"
       },
       "permissions": [
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION",
-        "VIBRATE",
-        "ACCESS_BACKGROUND_LOCATION"
+        "VIBRATE"
       ],
-      "config": {
-        "googleMaps": {
-          "apiKey": ""
-        }
-      }
+      "blockedPermissions": [
+        "ACCESS_BACKGROUND_LOCATION"
+      ]
     },
     "plugins": [
       "expo-router",
       "expo-font",
-      "expo-secure-store",
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "TUR trenger tilgang til posisjonen din for å registrere besøk ved tursteder.",
-          "locationAlwaysPermission": "TUR trenger tilgang til posisjonen din for navigering til tursteder.",
-          "locationWhenInUsePermission": "TUR trenger tilgang til posisjonen din for å registrere besøk ved tursteder."
+          "locationWhenInUsePermission": "TUR trenger tilgang til posisjonen din for å registrere besøk ved tursteder og vise avstand til neste sted.",
+          "isAndroidBackgroundLocationEnabled": false
         }
       ]
     ],
