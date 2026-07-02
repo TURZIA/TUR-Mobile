@@ -9,7 +9,6 @@ import {
   Alert,
   Share,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
 import Toast from 'react-native-toast-message';
@@ -124,14 +123,7 @@ export default function ParticipantsScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Text style={styles.back}>← Tilbake</Text>
-        </TouchableOpacity>
-        <Text style={styles.title}>Deltakere</Text>
-        <View style={{ width: 70 }} />
-      </View>
+    <View style={styles.container}>
 
       {loading ? (
         <ActivityIndicator size="large" color={COLORS.green} style={{ marginTop: 40 }} />
@@ -193,7 +185,7 @@ export default function ParticipantsScreen() {
           )}
         </ScrollView>
       )}
-    </SafeAreaView>
+    </View>
   );
 }
 

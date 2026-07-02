@@ -12,7 +12,7 @@ export default function SplashScreen() {
 
     const timer = setTimeout(() => {
       if (user) {
-        router.replace('/(main)/map');
+        router.replace('/(main)/(tabs)/map');
       } else {
         router.replace('/(auth)/login');
       }

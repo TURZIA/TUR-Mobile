@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import Toast from 'react-native-toast-message';
 import { COLORS, SHADOWS } from '@/constants/theme';
@@ -23,7 +22,6 @@ import { doneKey } from '@/utils/formatters';
 
 export default function MapScreen() {
   const user = useAuthStore((s) => s.user);
-  const logout = useAuthStore((s) => s.logout);
   const {
     checkpoints,
     doneCheckpoints,
@@ -196,12 +194,6 @@ export default function MapScreen() {
     [isSuperAdmin]
   );
 
-  const handleLogout = async () => {
-    stopWatching();
-    await logout();
-    router.replace('/(auth)/login');
-  };
-
   if (!user) return null;
 
   return (
@@ -213,66 +205,11 @@ export default function MapScreen() {
         <View style={styles.headerRow}>
           <View style={styles.headerLeft}>
             <Text style={styles.logoText}>TUR</Text>
-            <ProgressBadge />
+            {!isSuperAdmin && <ProgressBadge />}
           </View>
-          <View style={styles.headerRight}>
-            <Text style={styles.userName}>{user.name}</Text>
-            <TouchableOpacity onPress={handleLogout}>
-              <Text style={styles.logoutLink}>Logg ut</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Navigation buttons */}
-        <View style={styles.navRow}>
-          {!isSuperAdmin && (
-            <TouchableOpacity
-              style={styles.navBtn}
-              onPress={() => router.push('/(main)/history')}
-            >
-              <Text style={styles.navBtnText}>Historikk</Text>
-            </TouchableOpacity>
-          )}
-          {isSuperAdmin && (
-            <TouchableOpacity
-              style={styles.navBtn}
-              onPress={() => router.push('/(main)/status')}
-            >
-              <Text style={styles.navBtnText}>Status</Text>
-            </TouchableOpacity>
-          )}
-          {(isSuperAdmin || isAdmin) && (
-            <>
-              <TouchableOpacity
-                style={styles.navBtn}
-                onPress={() => router.push('/(main)/rapport')}
-              >
-                <Text style={styles.navBtnText}>Rapport</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.navBtn}
-                onPress={() => router.push('/(main)/checkpoints')}
-              >
-                <Text style={styles.navBtnText}>Sjekkpunkter</Text>
-              </TouchableOpacity>
-            </>
-          )}
-          {isAdmin && (
-            <TouchableOpacity
-              style={styles.navBtn}
-              onPress={() => router.push('/(main)/participants')}
-            >
-              <Text style={styles.navBtnText}>Deltakere</Text>
-            </TouchableOpacity>
-          )}
-          {isSuperAdmin && (
-            <TouchableOpacity
-              style={styles.navBtn}
-              onPress={() => router.push('/(main)/admins')}
-            >
-              <Text style={styles.navBtnText}>Admins</Text>
-            </TouchableOpacity>
-          )}
+          <Text style={styles.userName} numberOfLines={1}>
+            {user.name}
+          </Text>
         </View>
       </View>
 
@@ -308,14 +245,12 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: COLORS.green,
     paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: 12,
+    paddingVertical: 10,
   },
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
   },
   headerLeft: {
     flexDirection: 'row',
@@ -323,39 +258,16 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   logoText: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: '800',
     color: COLORS.white,
     letterSpacing: 2,
   },
-  headerRight: {
-    alignItems: 'flex-end',
-  },
   userName: {
-    color: COLORS.white,
+    color: 'rgba(255,255,255,0.9)',
     fontSize: 14,
     fontWeight: '600',
-  },
-  logoutLink: {
-    color: 'rgba(255,255,255,0.7)',
-    fontSize: 12,
-    marginTop: 2,
-  },
-  navRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  navBtn: {
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderRadius: 8,
-  },
-  navBtnText: {
-    color: COLORS.white,
-    fontSize: 13,
-    fontWeight: '600',
+    maxWidth: 160,
   },
   mapContainer: {
     flex: 1,

@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useFocusEffect } from 'expo-router';
 import Toast from 'react-native-toast-message';
 import { COLORS, RADIUS, SHADOWS } from '@/constants/theme';
@@ -89,14 +88,7 @@ export default function NewRaceScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Text style={styles.back}>← Tilbake</Text>
-        </TouchableOpacity>
-        <Text style={styles.title}>Ny tur</Text>
-        <View style={{ width: 70 }} />
-      </View>
+    <View style={styles.container}>
 
       <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
         <Input
@@ -144,7 +136,7 @@ export default function NewRaceScreen() {
           style={{ marginTop: 24 }}
         />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 

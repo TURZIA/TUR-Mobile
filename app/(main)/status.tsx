@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { COLORS, RADIUS, SHADOWS } from '@/constants/theme';
 import { getSystemCounts } from '@/services/supabase';
@@ -31,13 +30,7 @@ export default function StatusScreen() {
   ];
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Status</Text>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Text style={styles.close}>✕</Text>
-        </TouchableOpacity>
-      </View>
+    <View style={styles.container}>
 
       {loading ? (
         <ActivityIndicator size="large" color={COLORS.green} style={{ marginTop: 40 }} />
@@ -51,7 +44,7 @@ export default function StatusScreen() {
           ))}
         </View>
       )}
-    </SafeAreaView>
+    </View>
   );
 }
 

@@ -5,10 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  ActivityIndicator,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
 import Toast from 'react-native-toast-message';
 import * as Haptics from 'expo-haptics';
 import * as FileSystem from 'expo-file-system/legacy';
@@ -210,15 +207,7 @@ export default function RapportScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Text style={styles.back}>← Tilbake</Text>
-        </TouchableOpacity>
-        <Text style={styles.title}>Rapport</Text>
-        <View style={{ width: 70 }} />
-      </View>
-
+    <View style={styles.container}>
       <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
         {/* Admin selector for super admin */}
         {isSuperAdmin && admins.length > 0 && (
@@ -303,24 +292,12 @@ export default function RapportScreen() {
           )}
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.bg },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    backgroundColor: COLORS.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  back: { color: COLORS.green, fontSize: 15, fontWeight: '600' },
-  title: { fontSize: 18, fontWeight: '700', color: COLORS.text },
   scroll: { flex: 1 },
   scrollContent: { padding: 20 },
   selectorRow: { marginBottom: 16 },

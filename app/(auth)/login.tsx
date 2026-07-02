@@ -48,7 +48,7 @@ export default function LoginScreen() {
           data.user.email ?? '',
           data.user.user_metadata?.full_name ?? data.user.email ?? ''
         );
-        router.replace('/(main)/map');
+        router.replace('/(main)/(tabs)/map');
       }
     } catch (err: any) {
       Toast.show({ type: 'error', text1: 'Feil', text2: err.message });
@@ -105,7 +105,7 @@ export default function LoginScreen() {
           race_id: pendingCode,
         });
         await resolveUser(data.user.id, email.trim(), name.trim());
-        router.replace('/(main)/map');
+        router.replace('/(main)/(tabs)/map');
       }
     } catch (err: any) {
       Toast.show({ type: 'error', text1: 'Feil', text2: err.message });

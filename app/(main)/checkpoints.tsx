@@ -8,7 +8,6 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import Toast from 'react-native-toast-message';
 import { COLORS, RADIUS, SHADOWS } from '@/constants/theme';
@@ -97,21 +96,17 @@ export default function CheckpointsScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Text style={styles.back}>← Tilbake</Text>
-        </TouchableOpacity>
-        <Text style={styles.title}>Sjekkpunkter</Text>
-        <TouchableOpacity onPress={() => router.push('/(main)/new-race')}>
-          <Text style={styles.addBtn}>+ Ny tur</Text>
-        </TouchableOpacity>
-      </View>
+    <View style={styles.container}>
 
       {loading ? (
         <ActivityIndicator size="large" color={COLORS.green} style={{ marginTop: 40 }} />
       ) : (
         <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
+          <Button
+            title="+ Ny tur"
+            onPress={() => router.push('/(main)/new-race')}
+            style={{ marginBottom: 16 }}
+          />
           {racesData.length === 0 ? (
             <Text style={styles.empty}>Ingen aktive turer.</Text>
           ) : (
@@ -147,7 +142,7 @@ export default function CheckpointsScreen() {
           )}
         </ScrollView>
       )}
-    </SafeAreaView>
+    </View>
   );
 }
 
