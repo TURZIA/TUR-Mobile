@@ -12,6 +12,7 @@ import { router } from 'expo-router';
 import Toast from 'react-native-toast-message';
 import { COLORS, RADIUS, SHADOWS } from '@/constants/theme';
 import { Button } from '@/components/UI/Button';
+import { SkeletonList } from '@/components/UI/Skeleton';
 import { Input } from '@/components/UI/Input';
 import {
   getAllAdmins,
@@ -112,7 +113,7 @@ export default function AdminsScreen() {
     <View style={styles.container}>
 
       {loading ? (
-        <ActivityIndicator size="large" color={COLORS.green} style={{ marginTop: 40 }} />
+        <SkeletonList rows={5} />
       ) : (
         <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
           {/* Admin list */}
@@ -168,7 +169,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     backgroundColor: COLORS.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: COLORS.border,
   },
   back: { color: COLORS.green, fontSize: 15, fontWeight: '600' },
   title: { fontSize: 18, fontWeight: '700', color: COLORS.text },

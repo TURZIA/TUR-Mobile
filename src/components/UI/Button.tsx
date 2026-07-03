@@ -7,6 +7,7 @@ import {
   type ViewStyle,
   type TextStyle,
 } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { COLORS, RADIUS } from '../../constants/theme';
 
 interface ButtonProps {
@@ -32,6 +33,11 @@ export function Button({
 }: ButtonProps) {
   const isDisabled = disabled || loading;
 
+  const handlePress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    onPress();
+  };
+
   return (
     <TouchableOpacity
       style={[
@@ -40,7 +46,7 @@ export function Button({
         isDisabled && styles.disabled,
         style,
       ]}
-      onPress={onPress}
+      onPress={handlePress}
       disabled={isDisabled}
       activeOpacity={0.85}
     >
@@ -79,13 +85,13 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.green,
   },
   gray: {
-    backgroundColor: '#E5E7EB',
+    backgroundColor: COLORS.border,
   },
   blue: {
     backgroundColor: COLORS.blue,
   },
   red: {
-    backgroundColor: '#FEE2E2',
+    backgroundColor: COLORS.redLt,
     borderWidth: 1,
     borderColor: COLORS.red,
   },

@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: 26,
-    backgroundColor: 'rgba(255,255,255,0.92)',
+    backgroundColor: COLORS.mapPanel,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',

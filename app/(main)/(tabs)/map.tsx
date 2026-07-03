@@ -5,7 +5,7 @@ import * as Haptics from 'expo-haptics';
 import Toast from 'react-native-toast-message';
 import { COLORS, SHADOWS } from '@/constants/theme';
 import { CONFIG } from '@/constants/config';
-import { MapViewComponent, Compass, RegisterButton } from '@/components/Map';
+import { MapViewComponent, Compass, RegisterButton, CheckInSuccessModal } from '@/components/Map';
 import { GpsBar, OfflineBanner, ProgressBadge, LinkAdminModal } from '@/components/UI';
 import { useAuthStore } from '@/stores/authStore';
 import { useMapStore } from '@/stores/mapStore';
@@ -16,6 +16,12 @@ import {
   smoothPosition,
 } from '@/services/location';
 import { supabase } from '@/services/supabase';
+import { startQueueListener } from '@/services/checkinQueue';
+import {
+  requestNotificationPermission,
+  notify,
+  scheduleWeeklyReminder,
+} from '@/services/notifications';
 import { findNearestCheckpoint, haversineMeters } from '@/utils/haversine';
 import { fetchWalkingRoute } from '@/services/osrm';
 import { doneKey } from '@/utils/formatters';
@@ -60,6 +66,28 @@ export default function MapScreen() {
     if (isRunner && !user.raceId) {
       setShowLinkModal(true);
     }
+  }, [user?.id]);
+
+  // Notifications: permission + weekly reminder for runners
+  useEffect(() => {
+    if (!isRunner) return;
+    (async () => {
+      const granted = await requestNotificationPermission();
+      if (granted) scheduleWeeklyReminder();
+    })();
+  }, [isRunner]);
+
+  // Re-send check-ins that were made offline
+  useEffect(() => {
+    if (!user || isSuperAdmin) return;
+    const unsubscribe = startQueueListener((sent) => {
+      Toast.show({
+        type: 'success',
+        text1: `${sent} offline-registrering${sent > 1 ? 'er' : ''} sendt`,
+      });
+      loadHistory(user.id);
+    });
+    return unsubscribe;
   }, [user?.id]);
 
   // Start GPS tracking
@@ -135,8 +163,11 @@ export default function MapScreen() {
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'check_ins', filter: `runner_id=eq.${user.id}` }, () => {
         loadHistory(user.id);
       })
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'checkpoints' }, () => {
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'checkpoints' }, (payload: any) => {
         loadCheckpoints();
+        if (user.role === 'runner') {
+          notify('Nytt tursted! 🏔', `${payload.new?.name ?? 'Et nytt sted'} er lagt til — kom deg ut!`);
+        }
       })
       .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'checkpoints' }, () => {
         loadCheckpoints();
@@ -147,6 +178,7 @@ export default function MapScreen() {
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'winners' }, (payload: any) => {
         if (payload.new?.winner_id === user.id) {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          notify('Du er vinner! 🏆', 'Gratulerer med seieren i månedens trekning!');
           Toast.show({
             type: 'success',
             text1: 'Du er vinner!',
@@ -224,6 +256,9 @@ export default function MapScreen() {
 
       {/* Register Button */}
       <RegisterButton />
+
+      {/* Check-in celebration */}
+      <CheckInSuccessModal />
 
       {/* Link Admin Modal */}
       <LinkAdminModal

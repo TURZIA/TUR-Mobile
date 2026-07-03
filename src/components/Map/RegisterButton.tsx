@@ -6,10 +6,12 @@ import { COLORS, RADIUS, SHADOWS } from '../../constants/theme';
 import { CONFIG } from '../../constants/config';
 import { useMapStore } from '../../stores/mapStore';
 import { useAuthStore } from '../../stores/authStore';
+import NetInfo from '@react-native-community/netinfo';
 import {
   saveCheckIn,
   getLastCheckIn,
 } from '../../services/supabase';
+import { queueCheckIn } from '../../services/checkinQueue';
 import {
   getHighAccuracyPosition,
   getBestRecentPosition,
@@ -81,7 +83,7 @@ export function RegisterButton() {
         }
       } catch {}
 
-      await saveCheckIn({
+      const checkInData = {
         runner_id: user.id,
         runner_name: user.name,
         checkpoint_name: cp.name,
@@ -92,24 +94,43 @@ export function RegisterButton() {
         elapsed_seconds: elapsed,
         timestamp: new Date().toISOString(),
         race_id: cp.raceId,
-      });
+      };
+
+      const { error: saveError } = await saveCheckIn(checkInData);
+      if (saveError) {
+        const net = await NetInfo.fetch();
+        const offline = !net.isConnected || net.isInternetReachable === false;
+        if (offline || /network|fetch/i.test(saveError.message ?? '')) {
+          // No connectivity: keep it locally and send when back online
+          await queueCheckIn(checkInData);
+          Toast.show({
+            type: 'warning',
+            text1: 'Lagret uten nett',
+            text2: 'Registreringen sendes automatisk når du er tilkoblet',
+          });
+        } else {
+          Toast.show({ type: 'error', text1: 'Registrering feilet', text2: 'Prøv igjen' });
+          return;
+        }
+      }
 
       markDone(cp.raceId, cp.order);
       setCooldown(key);
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      Toast.show({ type: 'success', text1: `Registrert! — ${cp.name}` });
 
-      // Check if all checkpoints done
-      const allDone = checkpoints.every(
-        (c) => doneCheckpoints.has(doneKey(c.raceId, c.order)) || (c.raceId === cp.raceId && c.order === cp.order)
-      );
-      if (allDone) {
-        setTimeout(() => {
-          Toast.show({ type: 'success', text1: 'Gratulerer!', text2: 'Du har besøkt alle steder!' });
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        }, 1500);
-      }
+      const doneCount = checkpoints.filter(
+        (c) =>
+          doneCheckpoints.has(doneKey(c.raceId, c.order)) ||
+          (c.raceId === cp.raceId && c.order === cp.order)
+      ).length;
+
+      useMapStore.getState().setCelebration({
+        name: cp.name,
+        elapsed,
+        done: doneCount,
+        total: checkpoints.length,
+      });
     } catch (err) {
       Toast.show({ type: 'error', text1: 'Registrering feilet', text2: 'Prøv igjen' });
     } finally {
@@ -120,23 +141,23 @@ export function RegisterButton() {
   // Determine button state
   const getButtonState = () => {
     if (checkpoints.length === 0) {
-      return { text: 'Ingen steder lagt til ennå', disabled: true, color: '#9CA3AF' };
+      return { text: 'Ingen steder lagt til ennå', disabled: true, color: COLORS.muted };
     }
 
     if (!nearestCheckpoint) {
-      return { text: 'Henter posisjon…', disabled: true, color: '#9CA3AF' };
+      return { text: 'Henter posisjon…', disabled: true, color: COLORS.muted };
     }
 
     const cp = nearestCheckpoint.checkpoint;
     if (isDone(cp.raceId, cp.order)) {
-      return { text: `✓ ${cp.name} — allerede registrert`, disabled: true, color: '#9CA3AF' };
+      return { text: `✓ ${cp.name} — allerede registrert`, disabled: true, color: COLORS.muted };
     }
 
     if (nearestCheckpoint.distance > CONFIG.MAX_DISTANCE_METERS) {
       return {
         text: `${Math.round(nearestCheckpoint.distance)} m fra nærmeste punkt`,
         disabled: true,
-        color: '#9CA3AF',
+        color: COLORS.muted,
       };
     }
 

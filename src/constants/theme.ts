@@ -1,14 +1,23 @@
-export const COLORS = {
+import { Appearance } from 'react-native';
+
+// Palette is chosen once at launch from the system setting. Styles are
+// created statically with StyleSheet.create, so live switching would
+// require a full re-render architecture; follow-the-system-at-launch
+// is the supported model here.
+const LIGHT = {
   green: '#0EA371',
   greenDk: '#0B7D57',
   greenLt: '#E6F9F3',
   red: '#EF4444',
+  redLt: '#FEE2E2',
   amber: '#C9A800',
   bg: '#F5F7FA',
   surface: '#FFFFFF',
   text: '#0D1117',
   text2: '#374151',
   muted: '#6B7280',
+  border: '#E5E7EB',
+  borderLight: '#F3F4F6',
   purple: '#6D28D9',
   purpleLt: '#8B5CF6',
   blue: '#3B82F6',
@@ -16,10 +25,41 @@ export const COLORS = {
   white: '#FFFFFF',
   black: '#000000',
   overlay: 'rgba(0,0,0,0.5)',
+  mapPanel: 'rgba(255,255,255,0.92)',
   gpsGreen: '#16A34A',
   gpsYellow: '#EAB308',
   gpsRed: '#EF4444',
-} as const;
+};
+
+const DARK: typeof LIGHT = {
+  green: '#10B981',
+  greenDk: '#0B7D57',
+  greenLt: 'rgba(16,185,129,0.16)',
+  red: '#F87171',
+  redLt: 'rgba(248,113,113,0.16)',
+  amber: '#EAB308',
+  bg: '#0F172A',
+  surface: '#1E293B',
+  text: '#F1F5F9',
+  text2: '#CBD5E1',
+  muted: '#94A3B8',
+  border: '#334155',
+  borderLight: '#293548',
+  purple: '#8B5CF6',
+  purpleLt: '#A78BFA',
+  blue: '#60A5FA',
+  redArrow: '#FF6B6B',
+  white: '#FFFFFF',
+  black: '#000000',
+  overlay: 'rgba(0,0,0,0.65)',
+  mapPanel: 'rgba(30,41,59,0.92)',
+  gpsGreen: '#16A34A',
+  gpsYellow: '#CA8A04',
+  gpsRed: '#EF4444',
+};
+
+export const IS_DARK = Appearance.getColorScheme() === 'dark';
+export const COLORS = IS_DARK ? DARK : LIGHT;
 
 export const FONTS = {
   regular: 'Inter_400Regular',

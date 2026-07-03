@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
   },
   menuItemBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: COLORS.borderLight,
   },
   menuLabel: { flex: 1, fontSize: 15, fontWeight: '600', color: COLORS.text },
   version: { textAlign: 'center', color: COLORS.muted, fontSize: 12, marginTop: 8 },

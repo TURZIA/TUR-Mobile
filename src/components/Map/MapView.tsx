@@ -1,6 +1,8 @@
-import React, { useRef, useEffect, useCallback } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import React, { useRef, useEffect, useCallback, useState } from 'react';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import RNMapView, { Marker, Circle, Polyline } from 'react-native-maps';
+import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { COLORS } from '../../constants/theme';
 import { useMapStore, type MapCheckpoint } from '../../stores/mapStore';
 import { useAuthStore } from '../../stores/authStore';
@@ -25,13 +27,20 @@ export function MapViewComponent() {
   const user = useAuthStore((s) => s.user);
   const isSuperAdmin = user?.role === 'superadmin';
 
+  const [followMe, setFollowMe] = useState(true);
+  const hadFirstFix = useRef(false);
+
   const isDone = useCallback(
     (cp: MapCheckpoint) => doneCheckpoints.has(`${cp.raceId}_${cp.order}`),
     [doneCheckpoints]
   );
 
   useEffect(() => {
-    if (smoothedPosition && mapRef.current) {
+    if (!smoothedPosition || !mapRef.current || !followMe) return;
+
+    if (!hadFirstFix.current) {
+      // First GPS fix: zoom in on the user
+      hadFirstFix.current = true;
       mapRef.current.animateToRegion(
         {
           latitude: smoothedPosition.lat,
@@ -41,8 +50,30 @@ export function MapViewComponent() {
         },
         500
       );
+    } else {
+      // Keep centered while walking, without changing the zoom level
+      mapRef.current.animateCamera(
+        { center: { latitude: smoothedPosition.lat, longitude: smoothedPosition.lng } },
+        { duration: 400 }
+      );
     }
-  }, [smoothedPosition?.lat != null]);
+  }, [smoothedPosition, followMe]);
+
+  const handleLocatePress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setFollowMe(true);
+    if (smoothedPosition && mapRef.current) {
+      mapRef.current.animateToRegion(
+        {
+          latitude: smoothedPosition.lat,
+          longitude: smoothedPosition.lng,
+          latitudeDelta: 0.008,
+          longitudeDelta: 0.008,
+        },
+        400
+      );
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -55,6 +86,7 @@ export function MapViewComponent() {
         showsCompass={false}
         rotateEnabled={false}
         mapType="standard"
+        onPanDrag={() => followMe && setFollowMe(false)}
       >
         {/* Checkpoint markers */}
         {checkpoints.map((cp) => {
@@ -133,6 +165,21 @@ export function MapViewComponent() {
         )}
       </RNMapView>
 
+      {/* Follow-me button */}
+      {smoothedPosition && (
+        <TouchableOpacity
+          style={[styles.locateBtn, followMe && styles.locateBtnActive]}
+          onPress={handleLocatePress}
+          activeOpacity={0.8}
+        >
+          <Ionicons
+            name={followMe ? 'locate' : 'locate-outline'}
+            size={22}
+            color={followMe ? COLORS.white : COLORS.green}
+          />
+        </TouchableOpacity>
+      )}
+
       {/* Map Legend */}
       <View style={styles.legend}>
         <View style={styles.legendItem}>
@@ -193,11 +240,30 @@ const styles = StyleSheet.create({
     borderWidth: 2.5,
     borderColor: COLORS.white,
   },
+  locateBtn: {
+    position: 'absolute',
+    bottom: 12,
+    right: 12,
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: COLORS.mapPanel,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 5,
+  },
+  locateBtnActive: {
+    backgroundColor: COLORS.green,
+  },
   legend: {
     position: 'absolute',
     bottom: 12,
     left: 12,
-    backgroundColor: 'rgba(255,255,255,0.92)',
+    backgroundColor: COLORS.mapPanel,
     borderRadius: 10,
     padding: 10,
     gap: 5,

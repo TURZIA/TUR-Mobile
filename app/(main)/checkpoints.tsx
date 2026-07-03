@@ -12,6 +12,7 @@ import { router } from 'expo-router';
 import Toast from 'react-native-toast-message';
 import { COLORS, RADIUS, SHADOWS } from '@/constants/theme';
 import { Button } from '@/components/UI/Button';
+import { SkeletonList } from '@/components/UI/Skeleton';
 import { useAuthStore } from '@/stores/authStore';
 import { useMapStore } from '@/stores/mapStore';
 import {
@@ -99,7 +100,7 @@ export default function CheckpointsScreen() {
     <View style={styles.container}>
 
       {loading ? (
-        <ActivityIndicator size="large" color={COLORS.green} style={{ marginTop: 40 }} />
+        <SkeletonList rows={6} />
       ) : (
         <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
           <Button
@@ -156,7 +157,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     backgroundColor: COLORS.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: COLORS.border,
   },
   back: { color: COLORS.green, fontSize: 15, fontWeight: '600' },
   title: { fontSize: 18, fontWeight: '700', color: COLORS.text },
@@ -185,7 +186,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 14,
     borderTopWidth: 1,
-    borderTopColor: '#F3F4F6',
+    borderTopColor: COLORS.borderLight,
     gap: 12,
   },
   cpOrder: {

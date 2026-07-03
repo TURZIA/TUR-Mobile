@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: COLORS.borderLight,
   },
   resultName: { fontSize: 15, fontWeight: '600', color: COLORS.text },
   resultInfo: { fontSize: 12, color: COLORS.muted, marginTop: 2 },

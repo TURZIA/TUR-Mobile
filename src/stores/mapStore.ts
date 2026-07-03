@@ -32,6 +32,7 @@ interface MapState {
   nearestCheckpoint: { checkpoint: MapCheckpoint; distance: number } | null;
   isRegistering: boolean;
   cooldowns: Record<string, number>;
+  celebration: { name: string; elapsed: number | null; done: number; total: number } | null;
 
   loadCheckpoints: () => Promise<void>;
   loadHistory: (runnerId: string) => Promise<void>;
@@ -43,6 +44,7 @@ interface MapState {
   markDone: (raceId: string, order: number) => void;
   isDone: (raceId: string, order: number) => boolean;
   setIsRegistering: (val: boolean) => void;
+  setCelebration: (c: MapState['celebration']) => void;
   setCooldown: (key: string) => void;
   isCoolingDown: (key: string) => boolean;
   loadCooldowns: () => Promise<void>;
@@ -62,6 +64,7 @@ export const useMapStore = create<MapState>((set, get) => ({
   nearestCheckpoint: null,
   isRegistering: false,
   cooldowns: {},
+  celebration: null,
 
   loadCheckpoints: async () => {
     const { data: races } = await getActiveRaces();
@@ -125,6 +128,8 @@ export const useMapStore = create<MapState>((set, get) => ({
   isDone: (raceId, order) => get().doneCheckpoints.has(doneKey(raceId, order)),
 
   setIsRegistering: (val) => set({ isRegistering: val }),
+
+  setCelebration: (c) => set({ celebration: c }),
 
   setCooldown: (key) => {
     const cooldowns = { ...get().cooldowns, [key]: Date.now() };

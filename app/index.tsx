@@ -1,8 +1,10 @@
 import React, { useEffect } from 'react';
 import { View, StyleSheet, ActivityIndicator, Text } from 'react-native';
 import { router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS } from '@/constants/theme';
 import { useAuthStore } from '@/stores/authStore';
+import { ONBOARDING_KEY } from './onboarding';
 
 export default function SplashScreen() {
   const { user, loading, initialized } = useAuthStore();
@@ -10,11 +12,16 @@ export default function SplashScreen() {
   useEffect(() => {
     if (!initialized) return;
 
-    const timer = setTimeout(() => {
+    const timer = setTimeout(async () => {
       if (user) {
         router.replace('/(main)/(tabs)/map');
-      } else {
+        return;
+      }
+      const onboarded = await AsyncStorage.getItem(ONBOARDING_KEY);
+      if (onboarded) {
         router.replace('/(auth)/login');
+      } else {
+        router.replace('/onboarding');
       }
     }, 350);
 

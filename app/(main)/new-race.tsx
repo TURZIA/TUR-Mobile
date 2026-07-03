@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     backgroundColor: COLORS.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: COLORS.border,
   },
   back: { color: COLORS.green, fontSize: 15, fontWeight: '600' },
   title: { fontSize: 18, fontWeight: '700', color: COLORS.text },

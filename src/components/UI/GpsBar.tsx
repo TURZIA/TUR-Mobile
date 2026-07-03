@@ -50,9 +50,9 @@ export function GpsBar() {
         };
       default:
         return {
-          bg: '#9CA3AF',
+          bg: COLORS.muted,
           text: 'Henter posisjon…',
-          dotColor: '#9CA3AF',
+          dotColor: COLORS.muted,
         };
     }
   };

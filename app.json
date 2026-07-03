@@ -7,7 +7,7 @@
     "newArchEnabled": false,
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "scheme": "tur",
     "splash": {
       "image": "./assets/splash-icon.png",
